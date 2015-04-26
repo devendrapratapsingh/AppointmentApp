@@ -4,6 +4,9 @@
       android:versionCode="1"
       android:versionName="1.0">
     <uses-sdk android:targetSdkVersion="13" android:minSdkVersion="9"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
     <application android:icon="@drawable/icon" android:label="@string/app_name">
         <activity android:name=".SimpleCalendarViewActivity"
                   android:label="@string/app_name">
@@ -16,6 +19,7 @@
             android:label="@string/app_name"
             android:name=".App2Activity" >
         </activity>
+        <activity android:name=".App3Activity" />
     </application>
 
 
