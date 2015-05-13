@@ -41,7 +41,27 @@
                   android:layout_height="wrap_content"
                   android:onClick="onRadioButtonClicked"
                  />
-    </RadioGroup>
+        <RadioButton android:id="@+id/radio4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonClicked"
+            />
+        <RadioButton android:id="@+id/radio5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonClicked"
+            />
+        <RadioButton android:id="@+id/radio6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonClicked"
+            />
+        <RadioButton android:id="@+id/radio7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonClicked"
+            />
+     </RadioGroup>
 </LinearLayout>
 
 

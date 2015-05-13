@@ -10,7 +10,6 @@ import android.util.Log;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.view.View;
-import android.view.View.OnClickListener;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -19,24 +18,27 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class App2Activity extends Activity  {
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
+    String data = "";
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String data = getIntent().getExtras().getString("calendarValue");
+        data = getIntent().getExtras().getString("calendarValue");
         setContentView(R.layout.rest_ful_webservice);
         TextView textView=(TextView)findViewById(R.id.textView1);
         textView.setText(data);
         //To get the jason printed on the screen with radio buttons
-        String serverURL = "http://www.javascriptkit.com/dhtmltutors/javascriptkit.json";
+
+        String serverURL = "http://192.168.43.124:9080/appointment-web/rest/schedules/UN";
+
         new LongOperation().execute(serverURL);
     }
 
@@ -77,9 +79,7 @@ public class App2Activity extends Activity  {
         {
             try
             {
-
                 reader.close();
-
             }
 
             catch(Exception ex) {}
@@ -96,6 +96,10 @@ public class App2Activity extends Activity  {
         RadioButton radioBtn1 = (RadioButton) findViewById(R.id.radio1);
         RadioButton radioBtn2 = (RadioButton) findViewById(R.id.radio2);
         RadioButton radioBtn3 = (RadioButton) findViewById(R.id.radio3);
+        RadioButton radioBtn4 = (RadioButton) findViewById(R.id.radio4);
+        RadioButton radioBtn5 = (RadioButton) findViewById(R.id.radio5);
+        RadioButton radioBtn6 = (RadioButton) findViewById(R.id.radio6);
+        RadioButton radioBtn7 = (RadioButton) findViewById(R.id.radio7);
 
         // Required initialization
         private final HttpClient Client = new DefaultHttpClient();
@@ -108,33 +112,21 @@ public class App2Activity extends Activity  {
             //Start Progress Dialog (Message)
             Dialog.setMessage("Please wait..");
             Dialog.show();
-/*
-            try{
-                // Set Request parameter
-                // This is required in case data needs to be passed as a request parameter.
-                //data +="&" + URLEncoder.encode("data", "UTF-8") + "="+serverText.getText();
-
-            } catch (UnsupportedEncodingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-*/
-
         }
 
         // Call after onPreExecute method
         protected Void doInBackground(String... urls) {
 
-             Content =    readJSONFeed(urls[0]);
-              return null;
-            }
+            Content =    readJSONFeed(urls[0]);
+            return null;
+        }
 
 
         protected void onPostExecute(Void unused) {
 
-        // NOTE: You can call UI Element here.
+            // NOTE: You can call UI Element here.
 
-         // Close progress dialog
+            // Close progress dialog
             Dialog.dismiss();
 
             if (Error != null) {
@@ -144,51 +136,98 @@ public class App2Activity extends Activity  {
             } else {
 
                 // Show Response Json On Screen (activity)
-               /****************** Start Parse Response JSON Data *************/
+                /****************** Start Parse Response JSON Data *************/
                 String OutputData = "";
-                String titleChild = "";
-                String linkChild = "";
-                String descriptionChild = "";
 
-                JSONObject json;
+                JSONArray jsonArray;
 
                 try {
                     /*
-                    /****** Creates a new JSONObject with name/value mappings from the JSON string. ********/
-                    json = new JSONObject(Content);
-
-                    String title = (String)json.get("title");
-                    String link = (String)json.get("link");
-                    String description = (String)json.get("description");
-                    String language = (String)json.get("language");
-
-                    /***** Returns the value mapped by name if it exists and is a JSONArray. ***/
-                    /*******  Returns null otherwise.  *******/
-                    JSONArray jsonMainNode = json.optJSONArray("items");
+                    /****** Creates a new JSON Array. ********/
+                     jsonArray = new JSONArray(Content);
 
                     /*********** Process each JSON Node ************/
-                    int lengthJsonArr = jsonMainNode.length();
-
+                    int lengthJsonArr = jsonArray.length();
+                    ArrayList myList = new ArrayList();
+                    System.out.println("Length of Array---------------"+lengthJsonArr);
                     for(int i=0; i < lengthJsonArr; i++)
                     {
+                        HashMap<String, String> map = new HashMap<String, String>();
                         /****** Get Object for each JSON node.***********/
-                       JSONObject jsonChildNode = jsonMainNode.getJSONObject(i);
+                        System.out.println("----"+i+"------"+jsonArray.getString(i));
+                        map.put("slot_"+i,  jsonArray.getString(i));
+                        myList.add(map);
 
-                        /******* Fetch node values **********/
-                        titleChild       = jsonChildNode.optString("title").toString();
-                        linkChild     = jsonChildNode.optString("link").toString();
-                        descriptionChild = jsonChildNode.optString("description").toString();
-
-                   }
-
+                    }
                     /****************** End Parse Response JSON Data *************/
-                    OutputData += " Title           : "+ titleChild +"    "+ "Link      : "+ linkChild+ "   Description      :"+descriptionChild;
                     //Show Parsed Output on screen (activity)
-                    radioBtn0.setText(titleChild);
-                    radioBtn1.setText(linkChild);
-                    radioBtn2.setText(descriptionChild);
-                    radioBtn3.setText(language);
+                    String value = "";
+                    if(myList.size()>0) {
+                        for(int i=0; i < myList.size(); i++) {
+                            Map schedule = (Map) myList.get(i);
+                            {
+                                if (schedule.containsKey("slot_0")) {
+                                    if ((schedule.get("slot_" + i) != null) || ("slot_" + i != "")) {
+                                        value = (String) schedule.get("slot_" + i);
+                                        radioBtn0.setText(value);
+                                        radioBtn0.setContentDescription(data);
 
+                                    }
+                                }
+                                if (schedule.containsKey("slot_1")) {
+                                    if ((schedule.get("slot_" + i) != null) || ("slot_" + i != "")) {
+                                        value = (String) schedule.get("slot_" + i);
+                                        radioBtn1.setText(value);
+                                        radioBtn1.setContentDescription(data);
+                                    }
+                                }
+                                if (schedule.containsKey("slot_2")) {
+                                    if ((schedule.get("slot_" + i) != null) || ("slot_" + i != "")) {
+                                        value = (String) schedule.get("slot_" + i);
+                                        radioBtn2.setText(value);
+                                        radioBtn2.setContentDescription(data);
+                                    }
+                                }
+                                if (schedule.containsKey("slot_3")) {
+                                    if ((schedule.get("slot_" + i) != null) || ("slot_" + i != "")) {
+                                        value = (String) schedule.get("slot_" + i);
+                                        radioBtn3.setText(value);
+                                        radioBtn3.setContentDescription(data);
+                                    }
+                                }
+                                if (schedule.containsKey("slot_4")) {
+                                    if ((schedule.get("slot_" + i) != null) || ("slot_" + i != "")) {
+                                        value = (String) schedule.get("slot_" + i);
+                                        radioBtn4.setText(value);
+                                        radioBtn4.setContentDescription(data);
+                                    }
+                                }
+                                if (schedule.containsKey("slot_5")) {
+                                    if ((schedule.get("slot_" + i) != null) || ("slot_" + i != "")) {
+                                        value = (String) schedule.get("slot_" + i);
+                                        radioBtn5.setText(value);
+                                        radioBtn5.setContentDescription(data);
+                                    }
+                                }
+                                if (schedule.containsKey("slot_6")) {
+                                    if ((schedule.get("slot_" + i) != null) || ("slot_" + i != "")) {
+                                        value = (String) schedule.get("slot_" + i);
+                                        radioBtn6.setText(value);
+                                        radioBtn6.setContentDescription(data);
+                                    }
+                                }
+                                if (schedule.containsKey("slot_7")) {
+                                    if ((schedule.get("slot_" + i) != null) || ("slot_" + i != "")) {
+                                        value = (String) schedule.get("slot_" + i);
+                                        radioBtn7.setText(value);
+                                        radioBtn7.setContentDescription(data);
+                                    }
+                                }
+                             }
+                        }
+
+
+                    }
                 } catch (JSONException e) {
 
                     e.printStackTrace();
@@ -204,7 +243,11 @@ public class App2Activity extends Activity  {
             radioBtn1.setText("Output : "+Error);
             radioBtn2.setText("Output : "+Error);
             radioBtn3.setText("Output : "+Error);
-        }
+            radioBtn4.setText("Output : "+Error);
+            radioBtn5.setText("Output : "+Error);
+            radioBtn6.setText("Output : "+Error);
+            radioBtn7.setText("Output : "+Error);
+         }
 
     }
     public void onRadioButtonClicked(View view) {
@@ -215,28 +258,60 @@ public class App2Activity extends Activity  {
         switch(view.getId()) {
             case R.id.radio0:
                 if (checked)
-                    intent = new Intent(this, App3Activity.class);
-                    intent.putExtra("selected value", ((RadioButton) view).getText());
-                    startActivity(intent);
+                intent = new Intent(this, App3Activity.class);
+                intent.putExtra("selected value", ((RadioButton) view).getText());
+                intent.putExtra("selected date", ((RadioButton) view).getContentDescription());
+               startActivity(intent);
                 break;
             case R.id.radio1:
                 if (checked)
                     intent = new Intent(this, App3Activity.class);
-                    intent.putExtra("selected value", ((RadioButton) view).getText());
-                    startActivity(intent);
-                    break;
+                intent.putExtra("selected value", ((RadioButton) view).getText());
+                intent.putExtra("selected date", ((RadioButton) view).getContentDescription());
+                startActivity(intent);
+                break;
             case R.id.radio2:
                 if (checked)
                     intent = new Intent(this, App3Activity.class);
-                    intent.putExtra("selected value", ((RadioButton) view).getText());
-                    startActivity(intent);
-                    break;
+                intent.putExtra("selected value", ((RadioButton) view).getText());
+                intent.putExtra("selected date", ((RadioButton) view).getContentDescription());
+                startActivity(intent);
+                break;
             case R.id.radio3:
                 if (checked)
                     intent = new Intent(this, App3Activity.class);
-                    intent.putExtra("selected value", ((RadioButton) view).getText());
-                    startActivity(intent);
-                    break;
+                intent.putExtra("selected value", ((RadioButton) view).getText());
+                intent.putExtra("selected date", ((RadioButton) view).getContentDescription());
+                startActivity(intent);
+                break;
+            case R.id.radio4:
+                if (checked)
+                    intent = new Intent(this, App3Activity.class);
+                intent.putExtra("selected value", ((RadioButton) view).getText());
+                intent.putExtra("selected date", ((RadioButton) view).getContentDescription());
+                startActivity(intent);
+                break;
+            case R.id.radio5:
+                if (checked)
+                    intent = new Intent(this, App3Activity.class);
+                intent.putExtra("selected value", ((RadioButton) view).getText());
+                intent.putExtra("selected date", ((RadioButton) view).getContentDescription());
+                startActivity(intent);
+                break;
+            case R.id.radio6:
+                if (checked)
+                    intent = new Intent(this, App3Activity.class);
+                intent.putExtra("selected value", ((RadioButton) view).getText());
+                intent.putExtra("selected date", ((RadioButton) view).getContentDescription());;
+                startActivity(intent);
+                break;
+            case R.id.radio7:
+                if (checked)
+                    intent = new Intent(this, App3Activity.class);
+                intent.putExtra("selected value", ((RadioButton) view).getText());
+                intent.putExtra("selected date", ((RadioButton) view).getContentDescription());
+                startActivity(intent);
+                break;
             }
     }
 }
